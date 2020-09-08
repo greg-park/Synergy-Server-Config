@@ -1,0 +1,2 @@
+﻿iloIP,User,Pass,isoDir,iso,ksTemplate,NewCfg,NewIP,NewHostName,ESXUser,ESXpwd
+10.23.2.12,admin,HP1nvent,http://10.23.3.11/iso/esx/,ESXi_7.0.0_HPE.iso,ksTemplate.cfg,KS_CUST.CFG,10.23.3.12,TestHost12.asgard.local,root,VMware1!
