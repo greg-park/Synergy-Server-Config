@@ -22,6 +22,7 @@ param (
     [string]$resDir  = '.\Results\',
     [string]$ksDir   = '.\kickstart\',
     [string]$esxdata = $ksDir+'esxcfg.txt',
+    [string]instdata = $dataDir+'\installdata.csv',
     [string]$iLOIPs  = $dataDir+'iLOs.csv'
 )
 
@@ -85,7 +86,7 @@ function DoOperatingSystem {
         Write-Host "Copy $tmpcfg to $DestinationCFG"
         Copy-Item $svr.Newcfg $DestinationCFG
         
-        $iLoconn = Connect-HPEiLO $svr.iloIP -Username $svr.User -Password $svr.Pass -DisableCertificateAuthentication -ErrorAction SilentlyContinue
+        $iLoconn = Connect-HPEiLO $svr.hostname -Username $svr.account -Password $svr.password -DisableCertificateAuthentication -ErrorAction SilentlyContinue
         if ( $null -eq $iLoconn ) {
             Write-Host -ForeGroundColor Magenta $iloIP," connection could not be established ... exiting"
             exit
@@ -93,14 +94,14 @@ function DoOperatingSystem {
 
         $power = Get-HPEiLOServerPower -Connection $iLoconn -ErrorAction SilentlyContinue
         do {
-            write-host -ForegroundColor Magenta "Server $($svr.iloIP) powering off ... waiting 10s"
+            write-host -ForegroundColor Magenta "Server $($svr.hostname) powering off ... waiting 10s"
             Set-HPEiLOServerPower -Connection $iLoconn -Power PressAndHold -ErrorAction SilentlyContinue
             Start-Sleep -seconds 10
             $power = Get-HPEiLOServerPower -Connection $iLoconn -ErrorAction SilentlyContinue
             Write-Host -ForegroundColor Magenta "Server Power State:", $power.Power
         } until ($power.Power -eq "off")
        
-        write-host -ForegroundColor Magenta "Mounting $($Isopath) to $($svr.iloIP)"
+        write-host -ForegroundColor Magenta "Mounting $($Isopath) to $($svr.hostname)"
         Mount-HPEiLOVirtualMedia  -connection $iLoconn -Device CD -ImageURL $Isopath -ErrorAction SilentlyContinue
         set-hpeiloonetimebootoption -connection $iLoconn -BootSourceOverrideTarget CD        
         write-host -ForegroundColor Magenta "Booting server to install OS"

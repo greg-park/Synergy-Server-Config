@@ -1,37 +1,7 @@
 ##############################################################################
 # ConfigESX.ps1
 # Version 0.1
-# Example script to demonstrate deploying esx nodes in a Synergy frame 
-#
-# The script uses iLO PowerShell and VMware PowerCLI
-# 
-# Variable Discussion (need to go through this list, not all variables are used in this program)
-#    [string]$blade     = Name as it appears in OneView Server Hardware
-#    [string]$profname  = Name for the profile once created
-#    [string]$OVName    = OneView IP address or FQDN
-#    [string]$OVUser    = Clear text of OneView admin username
-#    [string]$OVPass    = Clear text of OneView password ... in production this is a BAD practice
-#    [string]$OVDomain  = Logon domain
-#    [string]$TemplateName = Name of the server profile template used when creating server profile
-#    [string]$Isopath   = HTTP string to web server with ISO for iLO remote media
-#    [string]$ksTemplate = Name of KickStart config file, i.e. '\\10.10.197.71\media\media\esxautotpw\test\109\ksBase.cfg'
-#    [string]$NewCfg    = Name of KickStart addition changes, i.e. '\\10.10.197.71\media\media\esxautotpw\test\109\ks.cfg'
-#    [string]$DiskPath  = Define the target disk path.  Could just use firstdisk paramater but this allows flexibility.  Ex. 'vmhba0:C1:T0:L0'
-# NOTE: for the above you might be able to determine this.  Need to do some research.
-#    [string]$NewIP     = IP address to use once esxi is installed, ex: 10.10.100.1
-#    [string]$NewHostName = Host name to use once esxi is installed, ex: 'TestHost'
-#    [string]$MoreStuff  = Command list to add to ks files, example
-#           " vim-cmd hostsvc/enable_ssh `n vim-cmd hostsvc/start_ssh `n vim-cmd hostsvc/enable_esx_shell `n vim-cmd hostsvc/start_esx_shell `n esxcli software vib install -d http://10.10.197.71/media/esxautotpw/vib/nimble-ncm `n esxcli software vib install -d http://10.10.197.71/media/esxautotpw/vib/sutesx67/ `n esxcli software vib install -d http://10.10.197.71/media/esxautotpw/vib/nimble-ncm `n sleep 60 `n reboot"
-# NOTE: It might be easier to crete a temp text file with all the post esxi install commands to add to the kickstart file.  Need to do some testing.
-#    [string]$CenterName = Vcenter IP address to use for adding newly created esxi host, ex: '10.10.105.250'
-#    [string]$CenterUser = Another bad practice, vCenter administrator.  'administrator@vsphere.local'
-#    [string]$Centerpass = Continueing the bad practices, admin password 'HP1nvent!'
-#    [string]$ESXUser    = esxi user name, ex:'root'
-#    [string]$ESXPWD     = Again, don't do this in production, password is: 'HP1nvent!'
-#    [string]$Datacenter = The name of the DataCenter to create within vCenter, ex: "TestDC"
-#    [string]$Cluster    = Just to be complete lets add a Cluster, ex: "TestCl"
-#
-#
+# Example script to demonstrate Applying profiles to servers in OneView 
 # (C) Copyright 2013-2018 Hewlett Packard Enterprise Development LP 
 ##############################################################################
 
@@ -76,16 +46,6 @@ function DoOperatingSystem {
     # Get-Content $InstallData > $tempFile   # Skip blank line ($_ -notlike '"*') -and
     
     $Servers = import-csv $tempFile
-
-    # ToDo:
-# Seperate out the iLO IPs to a seperate file
-# Generate that file from a short OneView script "GetiLOIPs.ps1"
-#   GetiLOIPs.ps1 will look like
-#   $server = Get-HPOVServer -Name $svr.blade
-#   $Index = $server.mpHostinfo.mpIpAddresses.Count-1
-#   $iloIP = $server.mpHostInfo.mpIpAddresses[$Index].address
-#   write $iloIP to File
-
     foreach ( $svr in $Servers ) {
         $server = Get-HPOVServer -Name $svr.blade
         $Index = $server.mpHostinfo.mpIpAddresses.Count-1
